@@ -41,6 +41,7 @@ public class FileController extends BaseController {
 	private FileManager fileService;
 	@Resource(name="fhlogService")
 	private FHlogManager FHLOG;
+
 	
 	/**保存
 	 * @param
