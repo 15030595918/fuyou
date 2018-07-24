@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AttachmentUMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		BETA_UNROLLING_ATTACHMENT
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		ATTACHMENT_ID,	
+		ATTACHMENT_NAME,	
+		ATTACHMENT_USERNAME,	
+		ATTACHMENT_DESCRIPTION,	
+		ATTACHMENT_DATE,	
+		ATTACHMENT_SIZE,	
+		ATTACHMENT_PATH,	
+		UNROLLING_ID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{ATTACHMENT_ID},	
+		#{ATTACHMENT_NAME},	
+		#{ATTACHMENT_USERNAME},	
+		#{ATTACHMENT_DESCRIPTION},	
+		#{ATTACHMENT_DATE},	
+		#{ATTACHMENT_SIZE},	
+		#{ATTACHMENT_PATH},	
+		#{UNROLLING_ID}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+		ATTACHMENT_NAME,
+		ATTACHMENT_USERNAME,
+		ATTACHMENT_DESCRIPTION,
+		ATTACHMENT_DATE,
+		ATTACHMENT_SIZE,
+		ATTACHMENT_PATH,
+		UNROLLING_ID
+		) values (
+		#{ATTACHMENT_NAME},
+		#{ATTACHMENT_USERNAME},
+		#{ATTACHMENT_DESCRIPTION},
+		#{ATTACHMENT_DATE},
+		#{ATTACHMENT_SIZE},
+		#{ATTACHMENT_PATH},
+		#{UNROLLING_ID}
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			ATTACHMENT_ID = #{ATTACHMENT_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			ATTACHMENT_ID = #{ATTACHMENT_ID},
+			ATTACHMENT_NAME = #{ATTACHMENT_NAME},
+			ATTACHMENT_USERNAME = #{ATTACHMENT_USERNAME},
+			ATTACHMENT_DESCRIPTION = #{ATTACHMENT_DESCRIPTION},
+			ATTACHMENT_DATE = #{ATTACHMENT_DATE},
+			ATTACHMENT_SIZE = #{ATTACHMENT_SIZE},
+			ATTACHMENT_PATH = #{ATTACHMENT_PATH},
+			UNROLLING = #{UNROLLING_ID},
+			ATTACHMENT_ID = ATTACHMENT_ID
+		where 
+		ATTACHMENT_ID = #{ATTACHMENT_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			ATTACHMENT_ID = #{ATTACHMENT_ID}
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		ATTACHMENT_ID,
+		ATTACHMENT_NAME,
+		ATTACHMENT_USERNAME,
+		ATTACHMENT_DESCRIPTION,
+		ATTACHMENT_DATE,
+		ATTACHMENT_SIZE,
+		ATTACHMENT_PATH,
+		A.UNROLLING_ID,
+		FILE_NAME
+		from
+		BETA_UNROLLING_ATTACHMENT AS A
+		LEFT JOIN  BETA_UNROLLING_FILE AS U ON A.UNROLLING_ID = U.UNROLLING_ID
+		where 1=1
+		<if test="pd.UNROLLING_ID!= null and pd.UNROLLING_ID != ''"><!-- 关键词检索 -->
+			and
+				(
+			A.UNROLLING_ID = #{pd.UNROLLING_ID}
+				<!--	根据需求自己加检索条件
+					字段1 LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+					 or 
+					字段2 LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%') 
+				-->
+				)
+		</if>
+        <if test="pd.keywords!= null and pd.keywords != ''"><!-- 关键词检索 -->
+          and
+            (
+            ATTACHMENT_NAME   LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+            )
+        </if>
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			ATTACHMENT_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	<!-- fh313596790qq(青苔) -->
+</mapper>
